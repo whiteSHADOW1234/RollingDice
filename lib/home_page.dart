@@ -12,105 +12,95 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int diceNumber = 0;
-  @override
-  Widget build(BuildContext context) {
-    // create a text widget and a button under it
-    return Scaffold(
-      // get the value of the dice number asynchrnously
-      body: diceNumber == 0
-          ? startPage()
-          : diceNumber == -1
-              ? diceRolling()
-              : diceResult(diceNumber),
-    );
-  }
+    int _diceNumber = 0;
+  bool _rolling = false;
+  bool _showResult = false;
 
-  void updateDiceNumber() {
-    // this function will call the diceRolling function and update the diceNumber state 
+  _rollDice() async {
     setState(() {
-      diceNumber = Random().nextInt(6) + 1;
-      print(diceNumber);
+      _rolling = true;
+    });
+    await Future.delayed(const Duration(seconds: 3), () => "");
+    setState(() {
+      _rolling = false;
+      _diceNumber = (1 + (Random().nextDouble() * 6).floor()).toInt();
+      _showResult = true;
     });
   }
-  
-  diceRolling() {
-    return  Center(
-      child: Column(
-        children: [
-          Center(
-            child: Lottie.asset('assets/rollingDice.json'),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          const Text(
-            'Rolling the dice...',
-            style: TextStyle(fontSize: 15),
-          ),
-        ],
-      )
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            _rolling
+                ? Lottie.asset('assets/lottie/rollingDice.json',
+                    height: 200, width: 200)
+                : _diceNumber == 0
+                    ? const Text('Start rolling the dice',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ))
+                    : Column(
+                        children: <Widget>[
+                          Image.asset('assets/pictures/dice$_diceNumber.png'),
+                          _showResult
+                            ? DiceResult(closeCallback:() {
+                                setState(() {
+                                  _showResult = false;
+                                });
+                              }, diceNumber:_diceNumber,)
+                            : Container()
+                        ],
+                      ),
+            const SizedBox(height: 20),
+            MaterialButton(
+              onPressed: _rollDice,
+              color: Colors.red,
+              child: const Text('Roll'),
+            ),
+            // _diceNumber != 0
+            //     ? Padding(
+            //         padding: const EdgeInsets.only(top: 20),
+            //         child: MaterialButton(
+            //           onPressed: _rollDice,
+            //           color: Colors.blue,
+            //           child: const Text('Roll Again'),
+            //         ),
+            //       )
+            //     : Container()
+          ],
+        ),
+      ),
     );
   }
+}
 
-startPage() {
-  return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Roll the dice',
-          style: TextStyle(fontSize: 20),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        ElevatedButton(
-          onPressed: () async{
-            setState(() {
-              diceNumber = -1;
-            });
-            Future.delayed(const Duration(seconds: 3), () {
-              updateDiceNumber();
-            });
-          },
-          child: const Text('Roll'),
-        ),
+class DiceResult extends StatelessWidget {
+  final int _diceNumber;
+  final VoidCallback _closeCallback;
+  const DiceResult({Key? key, required VoidCallback closeCallback, required int diceNumber})
+      : _diceNumber = diceNumber,
+        _closeCallback = closeCallback,
+        super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('You just rolled a $_diceNumber',
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+              )
+            ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: _closeCallback,
+          child: const Text('OK'),
+        )
       ],
-    ),
-  );
+    );
+  }
 }
-
-diceResult(int diceNumber) {
-  return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'You rolled a $diceNumber',
-          style: const TextStyle(fontSize: 20),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        ElevatedButton(
-          onPressed: () async{
-            
-            setState(() {
-              diceNumber = -1;
-            });
-            print(diceNumber);
-            Future.delayed(const Duration(seconds: 3), () {
-              updateDiceNumber();
-            });
-          },
-          child: const Text('Roll Again'),
-        ),
-      ],
-    ),
-  );
-}
-}
-
-
-
