@@ -1,6 +1,6 @@
 # Rolling 
 - My roomate said that they might need a dice to play board games so I made this simple dice rolling app
-- The apk link is [Here](https://) (You can download it for your android phone here)
+- The apk link is [Here](https://github.com/whiteSHADOW1234/RollingDice/blob/main/app-release.apk) (You can download it for your android phone here)
 
 ## App Icon
 ![](https://i.imgur.com/GomUkZg.png)
